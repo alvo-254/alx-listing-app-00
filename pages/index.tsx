@@ -1,29 +1,73 @@
-import Head from 'next/head';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
+import { useState } from "react";
+import Image from "next/image";
+import Pill from "@/components/common/Pill";
+import Card from "@/components/common/Card";
+import { PROPERTYLISTINGSAMPLE } from "@/constants";
 
-export default function Home() {
-  const handleClick = () => alert('Button clicked!');
+const filters = [
+  "Top Villa",
+  "Self Checkin",
+  "Pet Friendly",
+  "Free Parking",
+  "Beachfront",
+  "Mountain View",
+  "Private Pool",
+];
+
+export default function HomePage() {
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
+  // Toggle active pill
+  const handleFilterClick = (label: string) =>
+    setActiveFilter((prev) => (prev === label ? null : label));
+
+  // Filter properties by selected pill
+  const filteredProperties = activeFilter
+    ? PROPERTYLISTINGSAMPLE.filter((p) => p.category.includes(activeFilter))
+    : PROPERTYLISTINGSAMPLE;
 
   return (
     <>
-      <Head>
-        <title>ALX Listing App</title>
-      </Head>
-
-      <main className="min-h-screen p-6 bg-gray-100">
-        <h1 className="text-3xl font-bold mb-4">Welcome to ALX Listing App</h1>
-
-        <Card
-          title="Luxury Apartment"
-          description="A cozy 2-bedroom apartment in Nairobi"
-          image="/assets/house1.jpg"
+      {/* ───────────── Hero Section ───────────── */}
+      <section className="relative h-[300px] sm:h-[400px] md:h-[500px] mb-10">
+        {/* NOTE: Images in /public are referenced by string path */}
+        <Image
+          src="/assets/hero.jpg"
+          alt="Hero background"
+          layout="fill"
+          objectFit="cover"
+          className="brightness-75"
+          priority
         />
 
-        <div className="mt-4">
-          <Button label="Book Now" onClick={handleClick} />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+            Find your favorite place here!
+          </h1>
+          <p className="mt-2 text-md sm:text-lg md:text-2xl max-w-2xl">
+            The best prices for over 2 million properties worldwide.
+          </p>
         </div>
-      </main>
+      </section>
+
+      {/* ───────────── Filter Pills ───────────── */}
+      <section className="flex flex-wrap gap-3 px-4 py-4 justify-center">
+        {filters.map((label) => (
+          <Pill
+            key={label}
+            label={label}
+            active={activeFilter === label}
+            onClick={() => handleFilterClick(label)}
+          />
+        ))}
+      </section>
+
+      {/* ───────────── Property Listings ───────────── */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-12">
+        {filteredProperties.map((property, idx) => (
+          <Card key={idx} property={property} />
+        ))}
+      </section>
     </>
   );
 }
